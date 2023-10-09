@@ -1,6 +1,12 @@
+module TestTidierText
+
+
 using TidierText
 using Test
+using Documenter
 
-@testset "TidierText.jl" begin
-    # Write your tests here.
+DocMeta.setdocmeta!(TidierText, :DocTestSetup, :(using TidierText); recursive=true)
+
+doctest(TidierText)
+
 end
