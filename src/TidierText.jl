@@ -1,10 +1,10 @@
 module TidierText
+
 using MacroTools
 using StatsBase
 using Languages
 using DataFrames
 using Reexport
-
 
 include("docstrings.jl")
 

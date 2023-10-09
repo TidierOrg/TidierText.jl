@@ -261,12 +261,12 @@ Creates character shingles of size `n` from the text in `input_col` of `df`, out
 
 # Examples
 ```jldoctest
-julia>   df = DataFrame(
-        text = [
-        "The fox runs.",
-        "The sun rises."],  doc = [1, 2]);
+julia> df = DataFrame(
+       text = [
+       "The fox runs.",
+       "The sun rises."],  doc = [1, 2]);
         
-julia>  @unnest_character_shingles(df, term, text, 10, to_lower = false, strip_non_alphanum = true)
+julia> @unnest_character_shingles(df, term, text, 10, to_lower = false, strip_non_alphanum = true)
 7×2 DataFrame
  Row │ doc    term     
      │ Int64  String   
@@ -279,7 +279,7 @@ julia>  @unnest_character_shingles(df, term, text, 10, to_lower = false, strip_n
    6 │     2  esunrise
    7 │     2  sunrises
 
-julia>  @unnest_character_shingles(df, term, text, 10, to_lower = true, strip_non_alphanum = false)
+julia> @unnest_character_shingles(df, term, text, 10, to_lower = true, strip_non_alphanum = false)
 9×2 DataFrame
  Row │ doc    term      
      │ Int64  String    
@@ -314,12 +314,12 @@ Splits the text in `input_col` of `df` into separate characters, outputting the 
 
 # Examples
 ```jldoctest
-julia>  julia>  df = DataFrame(
+julia> df = DataFrame(
         text = [
         "The quick.",
         "Nice."],  doc = [1, 2]);
 
-julia>  @unnest_characters(df, term, text, to_lower = false)
+julia> @unnest_characters(df, term, text, to_lower = false)
  Row │ doc    term 
      │ Int64  Char 
 ─────┼─────────────
