@@ -9,9 +9,11 @@ using Reexport
 include("docstrings.jl")
 
 
-export get_stopwords, @bind_tf_idf, @unnest_character_shingles, @unnest_characters, @unnest_ngrams, @unnest_regex, @unnest_tokens, @antijoin
+export get_stopwords, @bind_tf_idf, @unnest_characters, @unnest_ngrams, @unnest_regex, @unnest_tokens, @antijoin
 
-
+"""
+$docstring_get_stopwords
+"""
 function get_stopwords()
     return DataFrame(word = stopwords(Languages.English()))
 end
@@ -55,16 +57,6 @@ function regex_tokenizer(text::String, pattern="\\s+")
     return split(text, Regex(pattern))
 end
 
-function character_shingle_tokenizer(text::String, n=3, n_min=n, to_lower=true, strip_non_alphanum=false)
-    to_lower && (text = lowercase(text))
-    strip_non_alphanum && (text = replace(text, r"[^\w\s]" => ""))
-    
-    shingles = []
-    for i in n_min:n
-        push!(shingles, [text[j:j+i-1] for j in 1:length(text)-i+1])
-    end
-    return reduce(vcat, shingles)
-end
 
 function character_tokenizer(text::String; to_lower=false, strip_non_alphanum=false)
     to_lower && (text = lowercase(text))
@@ -72,19 +64,6 @@ function character_tokenizer(text::String; to_lower=false, strip_non_alphanum=fa
     return collect(text)
 end
 
-function character_shingle_tokenizer(text::String, n; 
-                                     n_min=n, to_lower=false, 
-                                     strip_non_alphanum=true)
-    to_lower && (text = lowercase(text))
-    strip_non_alphanum && (text = replace(text, r"[^\w\s]" => ""))
-    
-    shingles = []
-    for i in n_min:n
-        push!(shingles, [text[j:j+i-1] for j in 1:length(text)-i+1])
-    end
-    
-    return reduce(vcat, shingles)
-end
 
 function ngram_tokenizer(text::String; n::Int=2, to_lower::Bool=false)
     to_lower && (text = lowercase(text))
@@ -141,9 +120,7 @@ function unnest_ngrams(df, output_col, input_col, n=2; to_lower=true)
                          to_lower=to_lower)
 end
 
-function unnest_character_shingles(df::DataFrame, output_col::Symbol, input_col::Symbol,  n=3; n_min=n, to_lower=true, strip_non_alphanum=true)
-    return unnest_tokens(df, output_col, input_col, (text, args...) -> character_shingle_tokenizer(text, n; n_min=n_min, to_lower=to_lower, strip_non_alphanum=strip_non_alphanum); to_lower=to_lower)
-end
+
 
 function unnest_characters(df::DataFrame, output_col::Symbol, input_col::Symbol; to_lower::Bool=false, strip_non_alphanum=false)
     return unnest_tokens(df, output_col, input_col, (text, args...) -> character_tokenizer(text; to_lower=to_lower, strip_non_alphanum=strip_non_alphanum); to_lower=to_lower)
@@ -202,14 +179,14 @@ macro unnest_ngrams(df, output_col, input_col, n, to_lower=false)
     end
 end
 
-"""
-$docstring_unnest_character_shingles
-"""
-macro unnest_character_shingles(df, output_col, input_col, n, to_lower=false, strip_non_alphanum = false)
-    return quote
-        unnest_character_shingles($(esc(df)), $(QuoteNode(output_col)), $(QuoteNode(input_col)), $(esc(n)); to_lower=$(to_lower), strip_non_alphanum=$(strip_non_alphanum) )
-    end
-end
+#"""
+#$docstring_unnest_character_shingles
+#"""
+#macro unnest_character_shingles(df, output_col, input_col, n, to_lower=false, strip_non_alphanum = false)
+#    return quote
+#        unnest_character_shingles($(esc(df)), $(QuoteNode(output_col)), $(QuoteNode(input_col)), $(esc(n)); to_lower=$(to_lower), strip_non_alphanum=$(strip_non_alphanum) )
+#    end
+#end
 
 """
 $docstring_unnest_characters
