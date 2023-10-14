@@ -53,36 +53,39 @@ function bind_tf_idf(df::DataFrame, term_col::Symbol, document_col::Symbol, n_co
     return df_copy
 end
 
-function regex_tokenizer(text::String, pattern="\\s+")
-    return split(text, Regex(pattern))
+function regex_tokenizer(text::String, pattern="\\s*")
+    tokens = split(text, Regex(pattern), keepempty=false)
+    stripped_tokens = strip.(tokens)
+    #println("Original: ", repr(text))  # Debug line
+    #println("Tokens after stripping: ", stripped_tokens)  # Debug line
+    return filter(x -> x != "", stripped_tokens)
 end
 
-
-function character_tokenizer(text::String; to_lower=false, strip_non_alphanum=false)
+function character_tokenizer(text::String; to_lower=true, strip_non_alphanum=false)
     to_lower && (text = lowercase(text))
     strip_non_alphanum && (text = replace(text, r"[^\w\s]" => ""))
     return collect(text)
 end
 
 
-function ngram_tokenizer(text::String; n::Int=2, to_lower::Bool=false)
+function ngram_tokenizer(text::String; n::Int=2, to_lower::Bool=true)
     to_lower && (text = lowercase(text))
     tokens = split(replace(text, r"[^\w\s]" => ""), r"\s")
     return [join(tokens[i:i+n-1], " ") for i in 1:length(tokens)-n+1]
 end
 
-function punctuation_space_tokenize(text::String; to_lower=false)
+function punctuation_space_tokenize(text::String; to_lower=true)
     to_lower && (text = lowercase(text))
     return split(replace(text, r"[^\w\s]" => ""), r"\s")
 end
 
 function unnest_tokens(df::DataFrame, output_col::Symbol, input_col::Symbol, 
-                       tokenizer::Function; 
-                       to_lower::Bool=false)
-    texts = df[!, input_col]
+    tokenizer::Function; 
+    to_lower::Bool=true)
+texts = df[!, input_col]
 
     if to_lower
-        texts = lowercase.(texts)
+    texts = lowercase.(texts)
     end
 
     token_list = tokenizer.(texts)
@@ -94,12 +97,16 @@ function unnest_tokens(df::DataFrame, output_col::Symbol, input_col::Symbol,
     repeat_indices = Vector{Int}(undef, sum(repeat_lengths))
     counter = 1
     @inbounds for i in eachindex(repeat_lengths)
-        repeat_indices[counter:counter+repeat_lengths[i]-1] .= i
-        counter += repeat_lengths[i]
+    repeat_indices[counter:counter+repeat_lengths[i]-1] .= i
+    counter += repeat_lengths[i]
     end
 
     new_df = df[repeat_indices, :]
     new_df[!, output_col] = flat_token_list
+
+
+
+    #end
 
     return new_df
 end
@@ -122,7 +129,7 @@ end
 
 
 
-function unnest_characters(df::DataFrame, output_col::Symbol, input_col::Symbol; to_lower::Bool=false, strip_non_alphanum=false)
+function unnest_characters(df::DataFrame, output_col::Symbol, input_col::Symbol; to_lower::Bool=true, strip_non_alphanum=false)
     return unnest_tokens(df, output_col, input_col, (text, args...) -> character_tokenizer(text; to_lower=to_lower, strip_non_alphanum=strip_non_alphanum); to_lower=to_lower)
 end
 

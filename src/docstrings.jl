@@ -161,17 +161,16 @@ julia>  @unnest_regex(df, word, text, "the")
 ─────┼───────────────────────────────────
    1 │     1  The quick brown fox jumps.
    2 │     2  One column and
-   3 │     2   one row?
+   3 │     2  one row?
 
 julia>  @unnest_regex(df, word, text,  "the", to_lower = true)
-4×2 DataFrame
- Row │ doc    word                    
-     │ Int64  SubStrin…               
-─────┼────────────────────────────────
-   1 │     1
-   2 │     1   quick brown fox jumps.
-   3 │     2  one column and
-   4 │     2   one row?
+3×2 DataFrame
+ Row │ doc    word                   
+     │ Int64  SubStrin…              
+─────┼───────────────────────────────
+   1 │     1  quick brown fox jumps.
+   2 │     2  one column and
+   3 │     2  one row?
 ```
 """
 
@@ -196,7 +195,7 @@ Creates n-grams from the text in `input_col` of `df`, outputting the result to `
 julia>  using DataFrames;
         df = DataFrame(text = ["The quick brown fox jumps.", "The sun rises in the east."], doc = [1, 2]);
 
-julia>  @unnest_ngrams(df, term, text, 2)
+julia>  @unnest_ngrams(df, term, text, 2, to_lower = false)
 9×2 DataFrame
  Row │ doc    term        
      │ Int64  String      
@@ -211,16 +210,16 @@ julia>  @unnest_ngrams(df, term, text, 2)
    8 │     2  in the
    9 │     2  the east
 
-julia> @unnest_ngrams(df, term, text, 2, to_lower = true)
+julia> @unnest_ngrams(df, term, text, 2)
 9×2 DataFrame
  Row │ doc    term        
      │ Int64  String      
 ─────┼────────────────────
-   1 │     1  the quick
+   1 │     1  The quick
    2 │     1  quick brown
    3 │     1  brown fox
    4 │     1  fox jumps
-   5 │     2  the sun
+   5 │     2  The sun
    6 │     2  sun rises
    7 │     2  rises in
    8 │     2  in the
