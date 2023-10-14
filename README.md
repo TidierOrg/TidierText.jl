@@ -1,7 +1,7 @@
 # TidierText
 
 ## What is TidierText.jl
-`TidierText.jl `is a 100% Julia implementation of the R tidytext package.
+`TidierText.jl`is a 100% Julia implementation of the R tidytext package.
 
 To better understand how to leverage `TidierText.jl`, please explore Text Mining with R by Julia Silge et al. 
 
