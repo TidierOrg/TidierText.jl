@@ -20,8 +20,6 @@ using Pkg
 Pkg.add(url="https://github.com/TidierOrg/TidierText.jl")
 ```
 
-To better understand how to leverage `TidierText.jl`, please explore Text Mining with R by Julia Silge et al. 
-
 ## What functions does TidierText.jl support?
 
 - `@bind_tf_idf`
