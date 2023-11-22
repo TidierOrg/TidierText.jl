@@ -8,8 +8,9 @@ using Reexport
 
 include("docstrings.jl")
 
+@reexport using DataFrames: DataFrame
 
-export get_stopwords, @bind_tf_idf, @unnest_characters, @unnest_ngrams, @unnest_regex, @unnest_tokens, @antijoin
+export get_stopwords, @bind_tf_idf, @unnest_characters, @unnest_ngrams, @unnest_regex, @unnest_tokens
 
 """
 $docstring_get_stopwords
@@ -135,16 +136,6 @@ end
 
 
 ### Macros
-"""
-$docstring_antijoin
-"""
-macro antijoin(df1, df2)
-    by = :(intersect(names($(esc(df1))), names($(esc(df2)))))
-
-    return quote
-        antijoin(DataFrame($(esc(df1))), DataFrame($(esc(df2))); on = $(by))
-    end
-end
 
 """
 $docstring_bind_tf_idf

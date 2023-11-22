@@ -4,45 +4,26 @@ const docstring_get_stopwords =
 
 Returns a DataFrame containing English stopwords.
 
+The stopwords come from the `Languages.jl` package: https://github.com/JuliaText/Languages.jl/blob/master/data/stopwords/English.txt.
+
 # Returns
 - `DataFrame` with a single column `word`, each row containing a stopword.
 
 # Examples
 ```jldoctest
-julia> get_stopwords();
+julia> first(get_stopwords(), 5)
+5×1 DataFrame
+ Row │ word   
+     │ String 
+─────┼────────
+   1 │ a
+   2 │ about
+   3 │ above
+   4 │ across
+   5 │ after
 ```
 """
 
-const docstring_antijoin = 
-"""
-    @antijoin(df1, df2)
-
-Performs an anti-join operation on `df1` and `df2`, returning rows from `df1` that do not have matching rows in `df2`.
-
-# Arguments
-- `df1`: The left DataFrame.
-- `df2`: The right DataFrame.
-
-# Returns
-- A new DataFrame containing the result of the anti-join operation.
-
-# Examples
-```jldoctest
-julia> using DataFrames;
-       df1 = DataFrame(ID = [1, 2, 3, 4, 5], Name = ["A", "B", "C", "D", "E"]);
-       df2 = DataFrame(ID = [3, 4, 5, 6, 7], Test = ["C", "D", "E", "F", "G"]);
-
-julia> @antijoin(df1, df2)
-2×2 DataFrame
- Row │ ID     Name   
-     │ Int64  String 
-─────┼───────────────
-   1 │     1  A
-   2 │     2  B
-
-```
-
-"""
 const docstring_bind_tf_idf = 
 """
     @bind_tf_idf(df, term_col, document_col, n)
@@ -61,7 +42,11 @@ Calculates TF-IDF values for the specified columns of `df`.
 # Examples
 ```jldoctest
 julia> using DataFrames;
-       df = DataFrame(doc_id = [1, 1, 2, 2, 3, 3], term = ["apple", "banana", "apple", "cherry", "banana", "date"], n = [1, 4, 6, 4, 9, 8]);
+       df = DataFrame(
+              doc_id = [1, 1, 2, 2, 3, 3],
+              term = ["apple", "banana", "apple", "cherry", "banana", "date"],
+              n = [1, 4, 6, 4, 9, 8]
+            );
 
 julia> @bind_tf_idf(df, doc_id, term, n)
 6×6 DataFrame
@@ -79,7 +64,7 @@ julia> @bind_tf_idf(df, doc_id, term, n)
 
 const docstring_unnest_tokens = 
 """
-    @unnest_tokens(df, output_col, input_col, to_lower=false)
+    @unnest_tokens(df, output_col, input_col, to_lower = false)
 
 Tokenizes the text in `input_col` of `df` into separate words, outputting the result to `output_col`.
 
@@ -94,10 +79,14 @@ Tokenizes the text in `input_col` of `df` into separate words, outputting the re
 
 # Examples
 ```jldoctest
-julia>  using DataFrames;
-        df = DataFrame(text = ["The quick brown fox jumps.", "One column and the one row?"], doc = [1, 2]);
+julia> using DataFrames;
+       df = DataFrame(
+              text = ["The quick brown fox jumps.",
+                      "One column and the one row?"],
+                      doc = [1, 2]
+            );
 
-julia>  @unnest_tokens(df, word, text)
+julia> @unnest_tokens(df, word, text)
 11×2 DataFrame
  Row │ doc    word      
      │ Int64  SubStrin… 
@@ -114,7 +103,7 @@ julia>  @unnest_tokens(df, word, text)
   10 │     2  one
   11 │     2  row?
 
-julia>  @unnest_tokens(df, word, text, to_lower = true)
+julia> @unnest_tokens(df, word, text, to_lower = true)
 11×2 DataFrame
  Row │ doc    word      
      │ Int64  SubStrin… 
@@ -135,7 +124,7 @@ julia>  @unnest_tokens(df, word, text, to_lower = true)
 
 const docstring_unnest_regex =
 """
-    @unnest_regex(df, output_col, input_col, pattern="\\s+", to_lower=false)
+    @unnest_regex(df, output_col, input_col, pattern = "\\s+", to_lower = false)
 
 Splits the text in `input_col` of `df` based on a regex `pattern`, outputting the result to `output_col`.
 
@@ -151,10 +140,14 @@ Splits the text in `input_col` of `df` based on a regex `pattern`, outputting th
 
 # Examples
 ```jldoctest
-julia>  using DataFrames;
-        df = DataFrame(text = ["The quick brown fox jumps.", "One column and the one row?"], doc = [1, 2]);
+julia> using DataFrames;
+       df = DataFrame(
+              text = ["The quick brown fox jumps.",
+                      "One column and the one row?"],
+                      doc = [1, 2]
+            );
 
-julia>  @unnest_regex(df, word, text, "the")
+julia> @unnest_regex(df, word, text, "the")
 3×2 DataFrame
  Row │ doc    word                       
      │ Int64  SubStrin…                  
@@ -163,7 +156,7 @@ julia>  @unnest_regex(df, word, text, "the")
    2 │     2  One column and
    3 │     2  one row?
 
-julia>  @unnest_regex(df, word, text,  "the", to_lower = true)
+julia> @unnest_regex(df, word, text, "the", to_lower = true)
 3×2 DataFrame
  Row │ doc    word                   
      │ Int64  SubStrin…              
@@ -176,7 +169,7 @@ julia>  @unnest_regex(df, word, text,  "the", to_lower = true)
 
 const docstring_unnest_ngrams =
 """
-    @unnest_ngrams(df, output_col, input_col, n, to_lower=false)
+    @unnest_ngrams(df, output_col, input_col, n, to_lower = false)
 
 Creates n-grams from the text in `input_col` of `df`, outputting the result to `output_col`.
 
@@ -192,10 +185,14 @@ Creates n-grams from the text in `input_col` of `df`, outputting the result to `
 
 # Examples
 ```jldoctest
-julia>  using DataFrames;
-        df = DataFrame(text = ["The quick brown fox jumps.", "The sun rises in the east."], doc = [1, 2]);
+julia> using DataFrames;
+       df = DataFrame(
+              text = ["The quick brown fox jumps.",
+                      "The sun rises in the east."],
+                      doc = [1, 2]
+            );
 
-julia>  @unnest_ngrams(df, term, text, 2, to_lower = false)
+julia> @unnest_ngrams(df, term, text, 2, to_lower = false)
 9×2 DataFrame
  Row │ doc    term        
      │ Int64  String      
@@ -229,7 +226,7 @@ julia> @unnest_ngrams(df, term, text, 2)
 
 const docstring_unnest_characters = 
 """
-    @unnest_characters(df, output_col, input_col, to_lower=false, strip_non_alphanum = false)
+    @unnest_characters(df, output_col, input_col, to_lower = false, strip_non_alphanum = false)
 
 Splits the text in `input_col` of `df` into separate characters, outputting the result to `output_col`.
 
@@ -245,10 +242,12 @@ Splits the text in `input_col` of `df` into separate characters, outputting the 
 
 # Examples
 ```jldoctest
-julia>  using DataFrames;
-        df = DataFrame( text = [ "The quick.", "Nice."],  doc = [1, 2]);
+julia> using DataFrames;
+       df = DataFrame(
+              text = ["The quick.", "Nice."],
+              doc = [1, 2]);
 
-julia>  @unnest_characters(df, term, text, to_lower = false)
+julia> @unnest_characters(df, term, text, to_lower = false)
 15×2 DataFrame
  Row │ doc    term 
      │ Int64  Char 
