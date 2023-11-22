@@ -1,0 +1,9 @@
+[deps]
+TidierText = "8f0b679f-44a1-4a38-8011-253e3a78fd39"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+Languages = "8ef0a80b-9436-5d2c-a485-80b904378c43"
+MacroTools = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"
+Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
+StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
