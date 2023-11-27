@@ -5,11 +5,14 @@ using StatsBase
 using Languages
 using DataFrames
 using Reexport
+using TextAnalysis: Corpus 
 
 include("docstrings.jl")
+include("nma.jl")
+include("get_sentiment.jl")
 
 
-export get_stopwords, @bind_tf_idf, @unnest_characters, @unnest_ngrams, @unnest_regex, @unnest_tokens, @antijoin
+export get_stopwords, @bind_tf_idf, @unnest_characters, @unnest_ngrams, @unnest_regex, @unnest_tokens, nma_words, get_sentiment, tidy
 
 """
 $docstring_get_stopwords
@@ -134,16 +137,12 @@ function unnest_characters(df::DataFrame, output_col::Symbol, input_col::Symbol;
 end
 
 
-### Macros
+### Macros and tidy()
 """
-$docstring_antijoin
+$docstring_tidy
 """
-macro antijoin(df1, df2)
-    by = :(intersect(names($(esc(df1))), names($(esc(df2)))))
-
-    return quote
-        antijoin(DataFrame($(esc(df1))), DataFrame($(esc(df2))); on = $(by))
-    end
+function tidy(corpus)
+    return DataFrame(corpus)
 end
 
 """

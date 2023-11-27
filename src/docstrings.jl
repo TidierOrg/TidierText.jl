@@ -13,32 +13,46 @@ julia> get_stopwords();
 ```
 """
 
-const docstring_antijoin = 
+const docstring_get_sentiment = 
 """
-    @antijoin(df1, df2)
+    get_sentiment(dict)
 
-Performs an anti-join operation on `df1` and `df2`, returning rows from `df1` that do not have matching rows in `df2`.
+Returns a DataFrame containing English stopwords. 
 
 # Arguments
-- `df1`: The left DataFrame.
-- `df2`: The right DataFrame.
-
+- dict: AFINN is currnently supported
 # Returns
-- A new DataFrame containing the result of the anti-join operation.
+- `DataFrame` with 2 columns `word` and `value`.
 
 # Examples
 ```jldoctest
-julia> using DataFrames;
-       df1 = DataFrame(ID = [1, 2, 3, 4, 5], Name = ["A", "B", "C", "D", "E"]);
-       df2 = DataFrame(ID = [3, 4, 5, 6, 7], Test = ["C", "D", "E", "F", "G"]);
+julia> get_sentiment();
+```
+"""
 
-julia> @antijoin(df1, df2)
-2×2 DataFrame
- Row │ ID     Name   
-     │ Int64  String 
-─────┼───────────────
-   1 │     1  A
-   2 │     2  B
+const docstring_tidy = 
+"""
+    @tidy(corpus)
+
+Returns a DataFrame of the corpus with 1 row per document
+# Arguments
+- `corpus`: The corpus to be converted
+
+# Returns
+- A DataFrame of the corpus with 1 row per document
+
+# Examples
+```jldoctest
+julia> using TextAnalysis: Corpus, StringDocument;
+       using DataFrames: DataFrame;
+       docs = [
+            "Apple banana fruit",
+            "Banana orange fruit", 
+            "Apple computer technology",
+            "Computer technology internet"];
+       corpus = Corpus(StringDocument.(docs));
+
+julia> tidy(corpus);
 
 ```
 
@@ -288,5 +302,20 @@ julia> @unnest_characters(df, term, text, to_lower = true, strip_non_alphanum = 
   11 │     2  i
   12 │     2  c
   13 │     2  e
+```
+"""
+
+const docstring_nma_words = 
+"""
+    nma_words()
+
+Returns a DataFrame containing 44 English negators, modals, and adverbs
+
+# Returns
+- `DataFrame` with a single column `word`, each row containing a stopword.
+
+# Examples
+```jldoctest
+julia> nma_words;
 ```
 """
