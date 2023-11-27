@@ -36,7 +36,7 @@ const docstring_tidy =
 
 Returns a DataFrame of the corpus with 1 row per document
 # Arguments
-- `corpus`: The corpus to be converted
+- `corpus`: The corpus to be converted into a DataFrame with appropriate metadata
 
 # Returns
 - A DataFrame of the corpus with 1 row per document

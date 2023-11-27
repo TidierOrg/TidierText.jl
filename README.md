@@ -19,7 +19,7 @@ To better understand how to leverage `TidierText.jl`, please explore Text Mining
 
 - `get_stopwords()`
 - `get_sentiment()`
-- `nma_words()`
+- `nma_words`
 - `tidy()`
 - `@bind_tf_idf()`
 - `@unnest_tokens()`
