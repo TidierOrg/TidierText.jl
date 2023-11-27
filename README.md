@@ -17,10 +17,12 @@ To better understand how to leverage `TidierText.jl`, please explore Text Mining
 
 ## What functions does TidierText.jl support?
 
-- `get_stopwords`
-- `@antijoin`
-- `@bind_tf_idf`
-- `@unnest_tokens`
+- `get_stopwords()`
+- `get_sentiment()`
+- `nma_words()`
+- `tidy()`
+- `@bind_tf_idf()`
+- `@unnest_tokens()`
 - `@unnest_regex()`
 - `@unnest_characters()`
 - `@unnest_ngrams()`
