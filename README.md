@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/TidierOrg/TidierData.jl/blob/main/LICENSE)
 [![Build Status](https://github.com/TidierOrg/TidierText.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/TidierOrg/TidierText.jl/actions/workflows/CI.yml?query=branch%3Amain)
 
-<img src="https://raw.githubusercontent.com/TidierOrg/Tidier.jl/main/docs/src/assets/Tidier_jl_logo.png" align="right" style="padding-left:10px;" width="150"/>
+<img src="https://raw.githubusercontent.com/TidierOrg/TidierText.jl/main/docs/src/assets/TidierText_logo.png" align="right" style="padding-left:10px;" width="150"/>
 
 ## What is TidierText.jl
 
