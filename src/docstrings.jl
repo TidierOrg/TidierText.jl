@@ -333,6 +333,7 @@ julia> using TextAnalysis: Corpus, StringDocument;
             "Apple computer technology",
             "Computer technology internet"];
         corpus = Corpus(StringDocument.(docs));
-        tidy(corpus);
+
+julia> tidy(corpus);
 ```
 """
