@@ -326,14 +326,6 @@ Returns a DataFrame of the corpus with 1 row per document
 - A DataFrame of the corpus with 1 row per document
 # Examples
 ```jldoctest
-julia> using TextAnalysis: Corpus, StringDocument;
-       docs = [
-            "Apple banana fruit",
-            "Banana orange fruit", 
-            "Apple computer technology",
-            "Computer technology internet"];
-        corpus = Corpus(StringDocument.(docs));
-
-julia> tidy(corpus);
+julia> 
 ```
 """
