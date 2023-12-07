@@ -72,7 +72,8 @@ Tokenizes the text in `input_col` of `df` into separate words, outputting the re
 - `df`: The input DataFrame.
 - `output_col`: The name of the output column to store the tokens.
 - `input_col`: The name of the input column containing text to tokenize.
-- `to_lower`: A boolean indicating whether to convert text to lowercase before tokenizing.
+- `to_lower`: An optional boolean that defaults to false which indicates whether to convert text to lowercase before splitting.
+- `strip_non_alphanum`: Optional boolean that defualts to true, which strips non alphanumeric characters
 
 # Returns
 - A new DataFrame with the tokenized text.
@@ -86,7 +87,7 @@ julia> using DataFrames;
                       doc = [1, 2]
             );
 
-julia> @unnest_tokens(df, word, text)
+julia> @unnest_tokens(df, word, text, strip_non_alphanum = false)
 11×2 DataFrame
  Row │ doc    word      
      │ Int64  SubStrin… 
@@ -112,13 +113,13 @@ julia> @unnest_tokens(df, word, text, to_lower = true)
    2 │     1  quick
    3 │     1  brown
    4 │     1  fox
-   5 │     1  jumps.
+   5 │     1  jumps
    6 │     2  one
    7 │     2  column
    8 │     2  and
    9 │     2  the
   10 │     2  one
-  11 │     2  row?
+  11 │     2  row
 ```
 """
 
@@ -133,7 +134,8 @@ Splits the text in `input_col` of `df` based on a regex `pattern`, outputting th
 - `output_col`: The name of the output column to store the result.
 - `input_col`: The name of the input column containing text to split.
 - `pattern`: The regex pattern to use for splitting text.
-- `to_lower`: A boolean indicating whether to convert text to lowercase before splitting.
+- `to_lower`: An optional boolean that defaults to false which indicates whether to convert text to lowercase before splitting.
+- `strip_non_alphanum`: Optional boolean that defualts to true, which strips non alphanumeric characters
 
 # Returns
 - A new DataFrame with the text split based on the regex pattern.
@@ -149,14 +151,14 @@ julia> using DataFrames;
 
 julia> @unnest_regex(df, word, text, "the")
 3×2 DataFrame
- Row │ doc    word                       
-     │ Int64  SubStrin…                  
-─────┼───────────────────────────────────
-   1 │     1  The quick brown fox jumps.
+ Row │ doc    word                      
+     │ Int64  SubStrin…                 
+─────┼──────────────────────────────────
+   1 │     1  The quick brown fox jumps
    2 │     2  One column and
-   3 │     2  one row?
+   3 │     2  one row
 
-julia> @unnest_regex(df, word, text, "the", to_lower = true)
+julia> @unnest_regex(df, word, text, "the", to_lower = true, strip_non_alphanum = false)
 3×2 DataFrame
  Row │ doc    word                   
      │ Int64  SubStrin…              
@@ -178,7 +180,8 @@ Creates n-grams from the text in `input_col` of `df`, outputting the result to `
 - `output_col`: The name of the output column to store the n-grams.
 - `input_col`: The name of the input column containing text.
 - `n`: The size of the n-grams.
-- `to_lower`: A boolean indicating whether to convert text to lowercase before creating n-grams.
+- `to_lower`: An optional boolean that defaults to false which indicates whether to convert text to lowercase before splitting.
+- `strip_non_alphanum`: Optional boolean that defualts to true, which strips non alphanumeric characters
 
 # Returns
 - A new DataFrame with the n-grams.
@@ -226,7 +229,7 @@ julia> @unnest_ngrams(df, term, text, 2)
 
 const docstring_unnest_characters = 
 """
-    @unnest_characters(df, output_col, input_col, to_lower = false, strip_non_alphanum = false)
+    @unnest_characters(df, output_col, input_col, to_lower = false, strip_non_alphanum = true)
 
 Splits the text in `input_col` of `df` into separate characters, outputting the result to `output_col`.
 
@@ -234,8 +237,8 @@ Splits the text in `input_col` of `df` into separate characters, outputting the 
 - `df`: The input DataFrame.
 - `output_col`: The name of the output column to store the characters.
 - `input_col`: The name of the input column containing text.
-- `to_lower`: A boolean indicating whether to convert text to lowercase before splitting.
-- `strip_non_alphanum`: Optional boolean, defualts to false that strips non alphanumeric characters
+- `to_lower`: An optional boolean that defaults to false which indicates whether to convert text to lowercase before splitting.
+- `strip_non_alphanum`: Optional boolean that defualts to true, which strips non alphanumeric characters
 
 # Returns
 - A new DataFrame with the text split into characters.
@@ -247,7 +250,7 @@ julia> using DataFrames;
               text = ["The quick.", "Nice."],
               doc = [1, 2]);
 
-julia> @unnest_characters(df, term, text, to_lower = false)
+julia> @unnest_characters(df, term, text, to_lower = false, strip_non_alphanum = false)
 15×2 DataFrame
  Row │ doc    term 
      │ Int64  Char 
@@ -268,8 +271,7 @@ julia> @unnest_characters(df, term, text, to_lower = false)
   14 │     2  e
   15 │     2  .
 
-
-julia> @unnest_characters(df, term, text, to_lower = true, strip_non_alphanum = true)
+julia> @unnest_characters(df, term, text, to_lower = true)
 13×2 DataFrame
  Row │ doc    term 
      │ Int64  Char 
@@ -287,5 +289,43 @@ julia> @unnest_characters(df, term, text, to_lower = true, strip_non_alphanum = 
   11 │     2  i
   12 │     2  c
   13 │     2  e
+```
+"""
+
+const docstring_nma_words = 
+"""
+    nma_words
+Returns a DataFrame containing 44 English negators, modals, and adverbs
+
+The NMA words come from a list developed by Saif Mohammad: http://saifmohammad.com/WebPages/SCL.html#NMA
+
+# Returns
+- `DataFrame` with a single column `word`, each row containing a stopword.
+# Examples
+```jldoctest
+julia> first(nma_words, 5)
+5×2 DataFrame
+ Row │ word       modifier 
+     │ String     String   
+─────┼─────────────────────
+   1 │ cannot     negator
+   2 │ could not  negator
+   3 │ did not    negator
+   4 │ does not   negator
+   5 │ had no     negator
+```
+
+"""
+const docstring_tidy = 
+"""
+    @tidy(corpus)
+Returns a DataFrame of the corpus with 1 row per document
+# Arguments
+- `corpus`: The corpus to be converted into a DataFrame with appropriate metadata for each document in the corpus.
+# Returns
+- A DataFrame of the corpus with 1 row per document
+# Examples
+```jldoctest
+julia> 
 ```
 """

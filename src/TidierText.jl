@@ -7,10 +7,11 @@ using DataFrames
 using Reexport
 
 include("docstrings.jl")
+include("nma.jl")
 
 @reexport using DataFrames: DataFrame
 
-export get_stopwords, @bind_tf_idf, @unnest_characters, @unnest_ngrams, @unnest_regex, @unnest_tokens
+export get_stopwords, @bind_tf_idf, @unnest_characters, @unnest_ngrams, @unnest_regex, @unnest_tokens, tidy, nma_words 
 
 """
 $docstring_get_stopwords
@@ -18,6 +19,13 @@ $docstring_get_stopwords
 function get_stopwords()
     return DataFrame(word = stopwords(Languages.English()))
 end
+
+"""
+$docstring_tidy
+"""
+function tidy(corpus)
+    return DataFrame(corpus)
+  end
 
 ### tokenizers and functions. Macros are below.
 function bind_tf_idf(df::DataFrame, term_col::Symbol, document_col::Symbol, n_col::Symbol)
@@ -62,16 +70,21 @@ function regex_tokenizer(text::String, pattern="\\s*")
     return filter(x -> x != "", stripped_tokens)
 end
 
-function character_tokenizer(text::String; to_lower=true, strip_non_alphanum=false)
+function character_tokenizer(text::String; to_lower=true, strip_non_alphanum::Bool=true)
     to_lower && (text = lowercase(text))
-    strip_non_alphanum && (text = replace(text, r"[^\w\s]" => ""))
+    if strip_non_alphanum
+        text = filter.(!ispunct, text)
+    end
     return collect(text)
 end
 
 
-function ngram_tokenizer(text::String; n::Int=2, to_lower::Bool=true)
+function ngram_tokenizer(text::String; n::Int=2, to_lower::Bool=true, strip_non_alphanum::Bool=true)
     to_lower && (text = lowercase(text))
     tokens = split(replace(text, r"[^\w\s]" => ""), r"\s")
+    if strip_non_alphanum
+        text = filter.(!ispunct, text)
+    end
     return [join(tokens[i:i+n-1], " ") for i in 1:length(tokens)-n+1]
 end
 
@@ -82,13 +95,20 @@ end
 
 function unnest_tokens(df::DataFrame, output_col::Symbol, input_col::Symbol, 
     tokenizer::Function; 
-    to_lower::Bool=true)
-texts = df[!, input_col]
+    to_lower::Union{Bool, Nothing}=nothing, 
+    strip_non_alphanum::Union{Bool, Nothing}=nothing)
+    
+    texts = df[!, input_col]
+    to_lower = isnothing(to_lower) ? true : to_lower
+    strip_non_alphanum = isnothing(strip_non_alphanum) ? true : strip_non_alphanum
 
     if to_lower
-    texts = lowercase.(texts)
+        texts = lowercase.(texts)
     end
 
+    if strip_non_alphanum
+        texts = filter.(!ispunct, texts)
+    end
     token_list = tokenizer.(texts)
 
     df = select(df, Not(input_col))
@@ -105,19 +125,15 @@ texts = df[!, input_col]
     new_df = df[repeat_indices, :]
     new_df[!, output_col] = flat_token_list
 
-
-
-    #end
-
     return new_df
 end
 
 
-function unnest_regex(df, output_col, input_col; pattern="\\s+", to_lower=true)
-    return unnest_tokens(df, output_col, input_col, text -> regex_tokenizer(text, pattern); to_lower=to_lower)
+function unnest_regex(df, output_col, input_col; pattern="\\s+", to_lower=true, strip_non_alphanum = true)
+    return unnest_tokens(df, output_col, input_col, text -> regex_tokenizer(text, pattern); to_lower=to_lower, strip_non_alphanum = strip_non_alphanum)
 end
 
-function unnest_ngrams(df, output_col, input_col, n=2; to_lower=true)
+function unnest_ngrams(df, output_col, input_col, n=2; to_lower=true, strip_non_alphanum=true)
     # Creating a specific tokenizer for the 'n' provided
     function ngram_tokenizer_specific(text::String)
         return ngram_tokenizer(text, n=n, to_lower=to_lower)
@@ -125,13 +141,15 @@ function unnest_ngrams(df, output_col, input_col, n=2; to_lower=true)
     
     # Utilizing unnest_tokens, passing the ngram_tokenizer and argument n
     return unnest_tokens(df, output_col, input_col, ngram_tokenizer_specific; 
-                         to_lower=to_lower)
+                         to_lower=to_lower, strip_non_alphanum = strip_non_alphanum)
 end
 
 
 
-function unnest_characters(df::DataFrame, output_col::Symbol, input_col::Symbol; to_lower::Bool=true, strip_non_alphanum=false)
-    return unnest_tokens(df, output_col, input_col, (text, args...) -> character_tokenizer(text; to_lower=to_lower, strip_non_alphanum=strip_non_alphanum); to_lower=to_lower)
+function unnest_characters(df::DataFrame, output_col::Symbol, input_col::Symbol; to_lower::Bool=true, strip_non_alphanum::Bool=true)
+    return unnest_tokens(df, output_col, input_col, 
+                         (text, args...) -> character_tokenizer(text; to_lower=to_lower, strip_non_alphanum=strip_non_alphanum); 
+                         to_lower=to_lower, strip_non_alphanum=strip_non_alphanum)
 end
 
 
@@ -153,27 +171,55 @@ end
 """
 $docstring_unnest_tokens
 """
-macro unnest_tokens(df, output_col, input_col, to_lower=false)
-    return quote
-        unnest_regex($(esc(df)), $(QuoteNode(output_col)), $(QuoteNode(input_col)); to_lower=$(to_lower))
+macro unnest_tokens(df, output_col, input_col, args...)
+    to_lower_expr = :false
+    strip_non_alphanum_expr = :true
+
+    for arg in args
+        if isa(arg, Expr) && arg.head == :(=)
+            if arg.args[1] == :to_lower
+                to_lower_expr = arg.args[2]
+            elseif arg.args[1] == :strip_non_alphanum
+                strip_non_alphanum_expr = arg.args[2]
+            end
+        end
+    end
+
+    quote
+        unnest_regex($(esc(df)), $(QuoteNode(output_col)), $(QuoteNode(input_col)); 
+                     to_lower = $to_lower_expr, strip_non_alphanum = $strip_non_alphanum_expr)
     end
 end
 
 """
 $docstring_unnest_regex
 """
-macro unnest_regex(df, output_col, input_col, pattern="\\s+", to_lower=false)
-    return quote
-        unnest_regex($(esc(df)), $(QuoteNode(output_col)), $(QuoteNode(input_col)); pattern=$(pattern), to_lower=$(to_lower))
+macro unnest_regex(df, output_col, input_col, pattern="\\s+", args...)
+    to_lower_expr = :false
+    strip_non_alphanum_expr = :true
+
+    for arg in args
+        if isa(arg, Expr) && arg.head == :(=)
+            if arg.args[1] == :to_lower
+                to_lower_expr = arg.args[2]
+            elseif arg.args[1] == :strip_non_alphanum
+                strip_non_alphanum_expr = arg.args[2]
+            end
+        end
+    end
+
+    quote
+        unnest_regex($(esc(df)), $(QuoteNode(output_col)), $(QuoteNode(input_col)); 
+                     pattern = $(pattern), to_lower = $to_lower_expr, strip_non_alphanum = $strip_non_alphanum_expr)
     end
 end
 
 """
 $docstring_unnest_ngrams
 """
-macro unnest_ngrams(df, output_col, input_col, n, to_lower=false)
+macro unnest_ngrams(df, output_col, input_col, n, to_lower=false, strip_non_alphanum = true)
     return quote
-        unnest_ngrams($(esc(df)), $(QuoteNode(output_col)), $(QuoteNode(input_col)), $(esc(n)); to_lower=$(to_lower))
+        unnest_ngrams($(esc(df)), $(QuoteNode(output_col)), $(QuoteNode(input_col)), $(esc(n)); to_lower=$(to_lower), strip_non_alphanum=$(strip_non_alphanum))
     end
 end
 
@@ -189,9 +235,23 @@ end
 """
 $docstring_unnest_characters
 """
-macro unnest_characters(df, output_col, input_col, to_lower=false, strip_non_alphanum = false)
-    return quote
-        unnest_characters($(esc(df)), $(QuoteNode(output_col)), $(QuoteNode(input_col)); to_lower=$(to_lower), strip_non_alphanum=$(strip_non_alphanum) )
+macro unnest_characters(df, output_col, input_col, args...)
+    to_lower_expr = :false
+    strip_non_alphanum_expr = :true
+
+    for arg in args
+        if isa(arg, Expr) && arg.head == :(=)
+            if arg.args[1] == :to_lower
+                to_lower_expr = arg.args[2]
+            elseif arg.args[1] == :strip_non_alphanum
+                strip_non_alphanum_expr = arg.args[2]
+            end
+        end
+    end
+
+    quote
+        unnest_characters($(esc(df)), $(QuoteNode(output_col)), $(QuoteNode(input_col)); 
+                          to_lower = $to_lower_expr, strip_non_alphanum = $strip_non_alphanum_expr)
     end
 end
 

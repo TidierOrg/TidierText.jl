@@ -22,12 +22,14 @@ Pkg.add(url="https://github.com/TidierOrg/TidierText.jl")
 
 ## What functions does TidierText.jl support?
 
-- `@bind_tf_idf`
-- `@unnest_tokens`
+- `@bind_tf_idf()`
+- `@unnest_tokens()`
 - `@unnest_regex()`
 - `@unnest_characters()`
 - `@unnest_ngrams()`
 - `get_stopwords()`
+- `tidy()`
+- `nma_words`
 
 ## How does the package work?
 
