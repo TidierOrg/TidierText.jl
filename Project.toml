@@ -1,7 +1,7 @@
 name = "TidierText"
 uuid = "8f0b679f-44a1-4a38-8011-253e3a78fd39"
 authors = ["Daniel Rizk"]
-version = "0.1.1"
+version = "0.2.0"
 
 [deps]
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
