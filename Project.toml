@@ -1,7 +1,7 @@
 name = "TidierText"
 uuid = "8f0b679f-44a1-4a38-8011-253e3a78fd39"
 authors = ["Daniel Rizk"]
-version = "0.2.0"
+version = "0.3.0"
 
 [deps]
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
@@ -11,7 +11,7 @@ Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 
 [compat]
-DataFrames = "1.5"
+DataFrames = "1.7"
 Languages = "0.4"
 MacroTools = "0.5"
 Reexport = "0.2, 1"
